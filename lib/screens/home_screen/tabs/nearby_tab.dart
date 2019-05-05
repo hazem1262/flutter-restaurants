@@ -3,13 +3,24 @@ import 'package:flutter_test_app/core/bloc_provider.dart';
 import 'package:flutter_test_app/screens/home_screen/home_bloc.dart';
 import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+class NearByTab extends StatefulWidget {
+  @override
+  _NearByTabState createState() => _NearByTabState();
+}
 
-class NearByTab extends StatelessWidget {
+
+class _NearByTabState extends State<NearByTab> with AutomaticKeepAliveClientMixin {
   HomeBloc _bloc;
   final ScrollController scrollController = new ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = BlocProvider.of<HomeBloc>(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    _bloc = BlocProvider.of<HomeBloc>(context);
     return StreamBuilder<List<Item>>(
       stream: _bloc.nearByRestaurants,
       builder: (buildContext, snapshot){
@@ -91,4 +102,7 @@ class NearByTab extends StatelessWidget {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -13,7 +13,7 @@ class FavTab extends StatefulWidget {
 }
 
 
-class _FavTabState extends State<FavTab> {
+class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
   HomeBloc _bloc;
   Stream<DocumentSnapshot > favRestaurantsSnapshot;
 
@@ -99,4 +99,7 @@ class _FavTabState extends State<FavTab> {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
