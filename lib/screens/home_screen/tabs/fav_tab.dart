@@ -41,6 +41,11 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
             padding: EdgeInsets.all(15),
             itemCount: (snapshot.data["favRest"] ?? []).length,
             itemBuilder: (buildContext, index){
+              if((snapshot.data["favRest"] ?? []).length == 0){
+                return Center(
+                  child: Text("You Have No Saved Data!"),
+                );
+              }
               return Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -93,7 +98,7 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
           );
         }else{
           return Center(
-            child: Text("You Have No Saved Data!"),
+            child: CircularProgressIndicator(),
           );
         }
       },
