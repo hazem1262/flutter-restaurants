@@ -79,7 +79,7 @@ class HomeBloc implements BlocBase{
   fetchRestaurants({LocationData  currentLocation}) async{
     String endPoint; //37.7896,-122.40745;r=1000.0
     if(currentLocation != null){
-      endPoint = "https://places.api.here.com/places/v1/discover/here?app_id=$APP_ID&app_code=$APP_CODE&at=${currentLocation.latitude},${currentLocation.longitude}&cat=eat-drink";
+      endPoint = "https://places.api.here.com/places/v1/browse?app_id=$APP_ID&app_code=$APP_CODE&at=${currentLocation.latitude},${currentLocation.longitude}&cat=eat-drink";
     }else{
       endPoint = nextPage;
     }
