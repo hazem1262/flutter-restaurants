@@ -5,8 +5,6 @@ import 'package:flutter_test_app/core/bloc_provider.dart';
 import 'package:flutter_test_app/screens/home_screen/home_bloc.dart';
 import 'package:flutter_test_app/screens/home_screen/tabs/fav_tab.dart';
 import 'package:flutter_test_app/screens/home_screen/tabs/nearby_tab.dart';
-import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart' hide Location;
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
 

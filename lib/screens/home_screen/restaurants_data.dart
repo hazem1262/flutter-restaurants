@@ -64,6 +64,7 @@ class Item {
   OpeningHours openingHours;
   List<AlternativeName> alternativeNames;
   bool isFav;
+  bool tobeRated;
 
   Item({
     this.position,
@@ -80,7 +81,8 @@ class Item {
     this.id,
     this.openingHours,
     this.alternativeNames,
-    this.isFav = false
+    this.isFav = false,
+    this.tobeRated = false
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => new Item(

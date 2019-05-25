@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test_app/core/bloc_provider.dart';
 import 'package:flutter_test_app/screens/home_screen/home_bloc.dart';
 import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart';
+import 'package:flutter_test_app/utility/resources.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 class NearByTab extends StatefulWidget {
   @override
@@ -81,8 +82,9 @@ class _NearByTabState extends State<NearByTab> with AutomaticKeepAliveClientMixi
                             backgroundColor: Colors.blue,
                             onPressed: (){
                               _bloc.saveRestaurant(restaurants[index]);
+                              Navigator.pushNamed(context, ScreenRoutes.RATE_SCREEN, arguments: restaurants[index]);
                             },
-                            label: Text("Save", style: TextStyle(
+                            label: Text("Rate", style: TextStyle(
                                 color: Colors.white
                             ),),
                           ),

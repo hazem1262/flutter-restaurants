@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginBloc implements BlocBase{
   static const String lastUserPrefs = "lastUserPrefs";
+  static const String restaurantRatedID = "rated restaurant id";
   TextEditingController controller;
   FirebaseAuth _auth;
   LoginBloc(){
@@ -60,6 +61,13 @@ class LoginBloc implements BlocBase{
     Firestore.instance.runTransaction((transaction)async{
       dbUsers.add({"id": user.uid});
     });
+    QuerySnapshot ratedRestaurantsReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: restaurantRatedID).getDocuments();
+    if (ratedRestaurantsReferences.documents == null || ratedRestaurantsReferences.documents.length == 0){
+      CollectionReference dbRestaurants = Firestore.instance.collection("Rated");
+      Firestore.instance.runTransaction((transaction)async{
+        dbRestaurants.add({"id": restaurantRatedID});
+      });
+    }
     return user;
   }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/screens/home_screen/home_screen.dart';
+import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart';
 import 'package:flutter_test_app/screens/login_screen/login_screen.dart';
+import 'package:flutter_test_app/screens/rate_screen/rate_screen.dart';
 import 'package:flutter_test_app/screens/splash_screen/splash_screen.dart';
 import 'package:flutter_test_app/utility/resources.dart';
 
@@ -29,6 +31,8 @@ Route _getRoute(RouteSettings settings){
       return _buildRoute(settings, LoginScreen(), customTransitionsBuilder: bottomUpTransition, transitionDuration: 800);
     case ScreenRoutes.HOME_SCREEN:
       return _buildRoute(settings, HomeScreen(userName: (settings.arguments as List<String>)[0], userId: (settings.arguments as List<String>)[1],));
+    case ScreenRoutes.RATE_SCREEN:
+      return _buildRoute(settings, RateScreen(ratedRestaurant: settings.arguments as Item,));
     default:
       return null;
   }
