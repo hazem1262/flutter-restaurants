@@ -69,6 +69,7 @@ class Item extends Comparable{
   bool isFav;
   bool tobeRated;
   String totalRating;
+  String firebaseRating;
 
   Item({
     this.position,
@@ -87,7 +88,9 @@ class Item extends Comparable{
     this.alternativeNames,
     this.isFav = false,
     this.tobeRated = false,
-    this.totalRating = ""
+    this.totalRating = "",
+    this.firebaseRating = ""
+
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => new Item(

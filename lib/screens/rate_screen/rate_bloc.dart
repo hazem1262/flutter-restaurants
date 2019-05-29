@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test_app/core/bloc_provider.dart';
 import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart';
 import 'package:flutter_test_app/screens/login_screen/login_bloc.dart';
+import 'package:flutter_test_app/utility/api_consts.dart';
 import 'package:flutter_test_app/utility/rate_helpers.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -29,22 +30,22 @@ class RateBloc implements BlocBase{
     var step = 100 / (ratedRestaurantsLength - 1);
     ratedRestaurantsSnapshot.updateData(
       {
-        "ratedRest" : FieldValue.arrayRemove(
+        FireBaseConst.ratedDocument : FieldValue.arrayRemove(
             [
               {
                 "restaurantId"      : restaurant.id,
                 "restaurantTitle"   : restaurant.title,
                 "restaurantVicinity": restaurant.vicinity,
-                "restaurantRating"  : restaurant.totalRating
+                "restaurantRating"  : restaurant.firebaseRating
               }
             ]
         )
       }
     );
-    var newRating = "${(step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).toString()}$RATING_DELIMITER ${restaurant.totalRating}";
+    var newRating = "${(step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).toString()}$RATING_DELIMITER ${restaurant.firebaseRating}";
     ratedRestaurantsSnapshot.updateData(
       {
-        "ratedRest" : FieldValue.arrayUnion(
+        FireBaseConst.ratedDocument : FieldValue.arrayUnion(
           [
             {
               "restaurantId"       : restaurant.id,
@@ -57,6 +58,8 @@ class RateBloc implements BlocBase{
       }
     );
     var onlyOneRestaurant = ratedRestaurantsLength == 1;
+    var yourRate = onlyOneRestaurant ? 0 : (step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).round();
+    yourRate = yourRate == 0 ? 1 : yourRate;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -66,7 +69,7 @@ class RateBloc implements BlocBase{
           content: onlyOneRestaurant? Column(mainAxisSize: MainAxisSize.min):Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("YOUR RATING: ${(step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).toString()}"),
+              Text("YOUR RATING: $yourRate"),
               Text("BEFORE: ${calcRate(restaurant.totalRating)}"),
               Text("AFTER: ${calcRate(newRating)}"),
 
@@ -91,24 +94,17 @@ class RateBloc implements BlocBase{
     QuerySnapshot userReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).getDocuments();
     final userRef = userReferences.documents[0].documentID;
     var ratedRestaurantsSnapshot = await Firestore.instance.collection("Rated").document("$userRef").get();
-    var previousRatedRest = ratedRestaurantsSnapshot.data["ratedRest"] ?? [];
+    var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
     var rests = List<Item>();
     (previousRatedRest as List).forEach((element){
       String rating = element['restaurantRating'];
-      var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
-      double totalRating = 0;
-      ratingArray.forEach((rate){
-        if(rate != " " && rate != ""){
-          totalRating += (1/(ratingArray.length - 1)) * double.parse(rate);
-        }
-      });
       rests.add(
         Item(
-          title         : element['restaurantTitle'],
-          id            : element['restaurantId'],
-          vicinity      : element['restaurantVicinity'],
-          averageRating : element['restaurantRating'],
-          totalRating   : totalRating.toString()
+          title          : element['restaurantTitle'],
+          id             : element['restaurantId'],
+          vicinity       : element['restaurantVicinity'],
+          firebaseRating : element['restaurantRating'],
+          totalRating    : calcRating(rating)
         )
       );
     });

@@ -5,6 +5,8 @@ import 'package:flutter_test_app/screens/home_screen/home_bloc.dart';
 import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart';
 import 'package:flutter_test_app/screens/login_screen/login_bloc.dart';
 import 'package:flutter_test_app/screens/rate_screen/rate_bloc.dart';
+import 'package:flutter_test_app/utility/api_consts.dart';
+import 'package:flutter_test_app/utility/rate_helpers.dart';
 import 'package:flutter_test_app/utility/resources.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:rxdart/rxdart.dart';
@@ -32,25 +34,20 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
     QuerySnapshot userReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).getDocuments();
     final userRef = userReferences.documents[0].documentID;
     Firestore.instance.collection("Rated").document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
-      var previousRatedRest = ratedRestaurantsSnapshot.data["ratedRest"] ?? [];
+      var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
       var rests = List<Item>();
       (previousRatedRest as List).forEach((element){
         String rating = element['restaurantRating'];
         var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
-        double totalRating = 0;
-        ratingArray.forEach((rate){
-          if(rate != " " && rate != ""){
-            totalRating += (1/(ratingArray.length - 1)) * double.parse(rate);
-          }
-        });
-        totalRating = totalRating == 0 ? 1 : totalRating;
+
         rests.add(
             Item(
-                title        : element['restaurantTitle'],
-                id           : element['restaurantId'],
-                vicinity     : element['restaurantVicinity'],
-                totalRating  : totalRating.toString(),
-                averageRating: (ratingArray.length == 3)? element['restaurantRating'].toString().substring(0,element['restaurantRating'].toString().length - 4):totalRating.round().toString()
+                title          : element['restaurantTitle'],
+                id             : element['restaurantId'],
+                vicinity       : element['restaurantVicinity'],
+                firebaseRating : element['restaurantRating'],
+                totalRating    : calcRating(rating),
+                averageRating  : (ratingArray.length < 3)? "${calcMinPossibleRating(element['restaurantRating'])} - ${calcMaxPossibleRating(element['restaurantRating'])}" : calcRating(rating)
             )
         );
       });

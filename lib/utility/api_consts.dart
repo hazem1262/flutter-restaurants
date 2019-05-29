@@ -17,3 +17,8 @@ class ApiHeaders {
   static String contentTypeValue = "application/json";
 
 }
+
+class FireBaseConst {
+  static String ratedCollection = "Rated";
+  static String ratedDocument = "ratedRestaurants";
+}
