@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test_app/core/bloc_provider.dart';
 import 'package:flutter_test_app/screens/home_screen/restaurants_data.dart';
 import 'package:flutter_test_app/screens/login_screen/login_bloc.dart';
+import 'package:flutter_test_app/utility/rate_helpers.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RateBloc implements BlocBase{
@@ -46,7 +47,7 @@ class RateBloc implements BlocBase{
         "ratedRest" : FieldValue.arrayUnion(
           [
             {
-              "restaurantId"       :restaurant.id,
+              "restaurantId"       : restaurant.id,
               "restaurantTitle"    : restaurant.title,
               "restaurantVicinity" : restaurant.vicinity,
               "restaurantRating"   : ratedRestaurantsLength == 1 ? "" : newRating
@@ -65,9 +66,9 @@ class RateBloc implements BlocBase{
           content: onlyOneRestaurant? Column(mainAxisSize: MainAxisSize.min):Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("YOUR RATING: 65"),
-              Text("BEFORE: 78"),
-              Text("AFTER: 75"),
+              Text("YOUR RATING: ${(step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).toString()}"),
+              Text("BEFORE: ${calcRate(restaurant.totalRating)}"),
+              Text("AFTER: ${calcRate(newRating)}"),
 
             ],
           ),
@@ -103,11 +104,11 @@ class RateBloc implements BlocBase{
       });
       rests.add(
         Item(
-          title: element['restaurantTitle'],
-          id: element['restaurantId'],
-          vicinity: element['restaurantVicinity'],
-          averageRating: element['restaurantRating'],
-          totalRating: totalRating.toString()
+          title         : element['restaurantTitle'],
+          id            : element['restaurantId'],
+          vicinity      : element['restaurantVicinity'],
+          averageRating : element['restaurantRating'],
+          totalRating   : totalRating.toString()
         )
       );
     });
@@ -132,5 +133,6 @@ class RateBloc implements BlocBase{
       saveRating(ratedRestaurant, context);
     }
   }
+
 
 }

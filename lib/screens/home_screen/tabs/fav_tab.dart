@@ -31,33 +31,35 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
   _initFavRestaurants() async{
     QuerySnapshot userReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).getDocuments();
     final userRef = userReferences.documents[0].documentID;
-
-    var ratedRestaurantsSnapshot = await Firestore.instance.collection("Rated").document("$userRef").get();
-    var previousRatedRest = ratedRestaurantsSnapshot.data["ratedRest"] ?? [];
-    var rests = List<Item>();
-    (previousRatedRest as List).forEach((element){
-      String rating = element['restaurantRating'];
-      var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
-      double totalRating = 0;
-      ratingArray.forEach((rate){
-        if(rate != " " && rate != ""){
-          totalRating += (1/(ratingArray.length - 1)) * double.parse(rate);
-        }
+    Firestore.instance.collection("Rated").document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
+      var previousRatedRest = ratedRestaurantsSnapshot.data["ratedRest"] ?? [];
+      var rests = List<Item>();
+      (previousRatedRest as List).forEach((element){
+        String rating = element['restaurantRating'];
+        var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
+        double totalRating = 0;
+        ratingArray.forEach((rate){
+          if(rate != " " && rate != ""){
+            totalRating += (1/(ratingArray.length - 1)) * double.parse(rate);
+          }
+        });
+        totalRating = totalRating == 0 ? 1 : totalRating;
+        rests.add(
+            Item(
+                title        : element['restaurantTitle'],
+                id           : element['restaurantId'],
+                vicinity     : element['restaurantVicinity'],
+                totalRating  : totalRating.toString(),
+                averageRating: (ratingArray.length == 3)? element['restaurantRating'].toString().substring(0,element['restaurantRating'].toString().length - 4):totalRating.round().toString()
+            )
+        );
       });
-      totalRating = totalRating == 0 ? 1 : totalRating;
-      rests.add(
-          Item(
-            title        : element['restaurantTitle'],
-            id           : element['restaurantId'],
-            vicinity     : element['restaurantVicinity'],
-            totalRating  : totalRating.toString(),
-            averageRating: (ratingArray.length == 3)? element['restaurantRating'].toString().substring(0,element['restaurantRating'].toString().length - 4):totalRating.round().toString()
-          )
-      );
+
+      rests.sort((a, b) => a.compareTo(b));
+      ratedRestaurants.add(rests);
     });
 
-    rests.sort((a, b) => a.compareTo(b));
-    ratedRestaurants.add(rests);
+
   }
   @override
   Widget build(BuildContext context) {

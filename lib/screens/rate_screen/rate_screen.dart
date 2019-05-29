@@ -60,10 +60,6 @@ class _ActualRateScreenState extends State<ActualRateScreen> {
                   ),
                 ),
                 padding: EdgeInsets.all(15),
-                /*itemCount:  restaurants.length,
-                itemBuilder: (buildContext, index){
-                  return buildCard(restaurants[index]);
-                },*/
                 children: restaurants.map((restaurant){
                   return buildCard(restaurant);
                 }).toList(),
@@ -101,7 +97,9 @@ class _ActualRateScreenState extends State<ActualRateScreen> {
     return GestureDetector(
       child: buildRestaurantWidget(restaurant),
       key: Key(restaurant.title),
-      onLongPress: (){},
+      onLongPress: (){
+        print("item long pressed");
+      },
     );
   }
 
