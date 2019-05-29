@@ -79,7 +79,7 @@ class _HomeScreenState extends State<ActualHomeScreen> {
                     text: "Nearby",
                   ),
                   Tab(
-                    text: "Saved",
+                    text: "Rated",
                   ),
                 ],
               ),

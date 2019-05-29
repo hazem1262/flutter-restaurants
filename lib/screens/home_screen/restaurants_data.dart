@@ -4,6 +4,9 @@
 
 import 'dart:convert';
 
+import 'dart:core';
+
+
 Restaurants restaurantsFromJson(String str) => Restaurants.fromJson(json.decode(str));
 
 String restaurantsToJson(Restaurants data) => json.encode(data.toJson());
@@ -48,7 +51,7 @@ class Results {
   };
 }
 
-class Item {
+class Item extends Comparable{
   List<double> position;
   int distance;
   String title;
@@ -65,6 +68,7 @@ class Item {
   List<AlternativeName> alternativeNames;
   bool isFav;
   bool tobeRated;
+  String totalRating;
 
   Item({
     this.position,
@@ -82,7 +86,8 @@ class Item {
     this.openingHours,
     this.alternativeNames,
     this.isFav = false,
-    this.tobeRated = false
+    this.tobeRated = false,
+    this.totalRating = ""
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => new Item(
@@ -118,6 +123,12 @@ class Item {
     "openingHours": openingHours == null ? null : openingHours.toJson(),
     "alternativeNames": alternativeNames == null ? null : new List<dynamic>.from(alternativeNames.map((x) => x.toJson())),
   };
+
+  @override
+  int compareTo(other) {
+
+    return double.parse(this.totalRating) > double.parse((other as Item).totalRating) ? -1 : 1;
+  }
 }
 
 class AlternativeName {
