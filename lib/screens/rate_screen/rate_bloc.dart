@@ -10,10 +10,11 @@ import 'package:rxdart/rxdart.dart';
 class RateBloc implements BlocBase{
   static const RATING_DELIMITER = " - ";
   Item ratedRestaurant;
+  final String userId;
   BehaviorSubject<List<Item>> ratedRestaurants;
   int ratedRestaurantIndex = 0;
   int ratedRestaurantsLength = 1;
-  RateBloc(this.ratedRestaurant){
+  RateBloc(this.ratedRestaurant, this.userId){
     ratedRestaurants = new BehaviorSubject();
   }
 
@@ -24,9 +25,9 @@ class RateBloc implements BlocBase{
   }
 
   saveRating(Item restaurant, BuildContext context) async{
-    QuerySnapshot userReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).getDocuments();
+    QuerySnapshot userReferences = await Firestore.instance.collection(FireBaseConst.userCollection).where("id", isEqualTo: userId).getDocuments();
     final userRef = userReferences.documents[0].documentID;
-    var ratedRestaurantsSnapshot = Firestore.instance.collection("Rated").document("$userRef");
+    var ratedRestaurantsSnapshot = Firestore.instance.collection(FireBaseConst.userCollection).document("$userRef");
     var step = 100 / (ratedRestaurantsLength - 1);
     ratedRestaurantsSnapshot.updateData(
       {
@@ -91,9 +92,9 @@ class RateBloc implements BlocBase{
   }
 
   void initRatedRestaurants(BuildContext context) async {
-    QuerySnapshot userReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).getDocuments();
+    QuerySnapshot userReferences = await Firestore.instance.collection(FireBaseConst.userCollection).where("id", isEqualTo: userId).getDocuments();
     final userRef = userReferences.documents[0].documentID;
-    var ratedRestaurantsSnapshot = await Firestore.instance.collection("Rated").document("$userRef").get();
+    var ratedRestaurantsSnapshot = await Firestore.instance.collection(FireBaseConst.userCollection).document("$userRef").get();
     var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
     var rests = List<Item>();
     (previousRatedRest as List).forEach((element){

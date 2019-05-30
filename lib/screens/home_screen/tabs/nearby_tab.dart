@@ -82,7 +82,7 @@ class _NearByTabState extends State<NearByTab> with AutomaticKeepAliveClientMixi
                             backgroundColor: Colors.blue,
                             onPressed: (){
 //                              _bloc.saveRestaurant(restaurants[index]);
-                              Navigator.pushNamed(context, ScreenRoutes.RATE_SCREEN, arguments: restaurants[index]);
+                              Navigator.pushNamed(context, ScreenRoutes.RATE_SCREEN, arguments: [restaurants[index], _bloc.userId]);
                             },
                             label: Text("Rate", style: TextStyle(
                                 color: Colors.white

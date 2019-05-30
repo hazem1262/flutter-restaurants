@@ -31,9 +31,9 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
     ratedRestaurants = new BehaviorSubject();
   }
   _initFavRestaurants() async{
-    Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).snapshots().listen((restRef){
+    Firestore.instance.collection(FireBaseConst.userCollection).where("id", isEqualTo: _bloc.userId).snapshots().listen((restRef){
       final userRef = restRef.documents[0].documentID;
-      Firestore.instance.collection("Rated").document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
+      Firestore.instance.collection(FireBaseConst.userCollection).document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
         var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
         var rests = List<Item>();
         (previousRatedRest as List).forEach((element){
@@ -111,7 +111,7 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
                         child: ActionChip(
                           backgroundColor: Colors.blue,
                           onPressed: (){
-                            Navigator.pushNamed(context, ScreenRoutes.RATE_SCREEN, arguments: restaurants[index]);
+                            Navigator.pushNamed(context, ScreenRoutes.RATE_SCREEN, arguments: [restaurants[index], _bloc.userId]);
                           },
                           label: Text("Rate", style: TextStyle(
                               color: Colors.white

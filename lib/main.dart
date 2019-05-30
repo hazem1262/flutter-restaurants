@@ -32,7 +32,7 @@ Route _getRoute(RouteSettings settings){
     case ScreenRoutes.HOME_SCREEN:
       return _buildRoute(settings, HomeScreen(userName: (settings.arguments as List<String>)[0], userId: (settings.arguments as List<String>)[1],));
     case ScreenRoutes.RATE_SCREEN:
-      return _buildRoute(settings, RateScreen(ratedRestaurant: settings.arguments as Item,));
+      return _buildRoute(settings, RateScreen(ratedRestaurant: (settings.arguments as List)[0] as Item, userId: (settings.arguments as List)[1],));
     default:
       return null;
   }

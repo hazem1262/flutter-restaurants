@@ -7,24 +7,25 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 
 class RateScreen extends StatelessWidget {
   final Item ratedRestaurant;
+  final String userId;
 
-  const RateScreen({Key key, this.ratedRestaurant}) : super(key: key);
+  const RateScreen({Key key, this.ratedRestaurant, this.userId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MyInheritedWidget(
-      child: BasePageWrapper(child: RateScreenBloc(ratedRestaurant: ratedRestaurant,),),
+      child: BasePageWrapper(child: RateScreenBloc(ratedRestaurant: ratedRestaurant,userId: userId,),),
     );
   }
 }
 
 class RateScreenBloc extends StatelessWidget {
   final Item ratedRestaurant;
-
-  const RateScreenBloc({Key key, this.ratedRestaurant}) : super(key: key);
+  final String userId;
+  const RateScreenBloc({Key key, this.ratedRestaurant, this.userId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      bloc: RateBloc(ratedRestaurant),
+      bloc: RateBloc(ratedRestaurant, userId),
       child: ActualRateScreen(),
     );
   }
