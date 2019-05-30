@@ -31,30 +31,32 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
     ratedRestaurants = new BehaviorSubject();
   }
   _initFavRestaurants() async{
-    QuerySnapshot userReferences = await Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).getDocuments();
-    final userRef = userReferences.documents[0].documentID;
-    Firestore.instance.collection("Rated").document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
-      var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
-      var rests = List<Item>();
-      (previousRatedRest as List).forEach((element){
-        String rating = element['restaurantRating'];
-        var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
+    Firestore.instance.collection("Rated").where("id", isEqualTo: LoginBloc.restaurantRatedID).snapshots().listen((restRef){
+      final userRef = restRef.documents[0].documentID;
+      Firestore.instance.collection("Rated").document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
+        var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
+        var rests = List<Item>();
+        (previousRatedRest as List).forEach((element){
+          String rating = element['restaurantRating'];
+          var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
 
-        rests.add(
-            Item(
-                title          : element['restaurantTitle'],
-                id             : element['restaurantId'],
-                vicinity       : element['restaurantVicinity'],
-                firebaseRating : element['restaurantRating'],
-                totalRating    : calcRating(rating),
-                averageRating  : (ratingArray.length < 3)? "${calcMinPossibleRating(element['restaurantRating'])} - ${calcMaxPossibleRating(element['restaurantRating'])}" : calcRating(rating)
-            )
-        );
+          rests.add(
+              Item(
+                  title          : element['restaurantTitle'],
+                  id             : element['restaurantId'],
+                  vicinity       : element['restaurantVicinity'],
+                  firebaseRating : element['restaurantRating'],
+                  totalRating    : calcRating(rating),
+                  averageRating  : (ratingArray.length < 3)? "${calcMinPossibleRating(element['restaurantRating'])} - ${calcMaxPossibleRating(element['restaurantRating'])}" : calcRating(rating)
+              )
+          );
+        });
+
+        rests.sort((a, b) => a.compareTo(b));
+        ratedRestaurants.add(rests);
       });
-
-      rests.sort((a, b) => a.compareTo(b));
-      ratedRestaurants.add(rests);
     });
+
 
 
   }
