@@ -58,37 +58,8 @@ class RateBloc implements BlocBase{
         )
       }
     );
-    var onlyOneRestaurant = ratedRestaurantsLength == 1;
-    var yourRate = onlyOneRestaurant ? 0 : (step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).round();
-    yourRate = yourRate == 0 ? 1 : yourRate;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context){
-        return AlertDialog(
-          title: Text("Thanks${onlyOneRestaurant ? ", please pick another place to rate":""}"),
-          content: onlyOneRestaurant? Column(mainAxisSize: MainAxisSize.min):Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text("YOUR RATING: $yourRate"),
-              Text("BEFORE: ${calcRate(restaurant.totalRating)}"),
-              Text("AFTER: ${calcRate(newRating)}"),
+    saveRateToGlobalRating(restaurant, context);
 
-            ],
-          ),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      }
-    );
   }
 
   void initRatedRestaurants(BuildContext context) async {
@@ -129,6 +100,106 @@ class RateBloc implements BlocBase{
     if(ratedRestaurantsLength == 1){
       saveRating(ratedRestaurant, context);
     }
+  }
+
+  void saveRateToGlobalRating(Item restaurant, BuildContext context) async{
+    QuerySnapshot userReferences = await Firestore.instance.collection(FireBaseConst.ratedCollection).where("id", isEqualTo: FireBaseConst.ratedRestaurantId).getDocuments();
+    final userRef = userReferences.documents[0].documentID;
+    var ratedRestaurantsSnapshot = await Firestore.instance.collection(FireBaseConst.ratedCollection).document("$userRef").get();
+    var globalRatedRestsRef = Firestore.instance.collection(FireBaseConst.ratedCollection).document("$userRef");
+    var globalRatedRests = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
+    var oldRatedRestaurant = (globalRatedRests as List).firstWhere((fireBaseRest){
+      return fireBaseRest['restaurantId'] == restaurant.id;
+    }, orElse: (){
+      return null;
+    });
+    var oldRating = "";
+    var newRating = "";
+    var step = 100 / (ratedRestaurantsLength - 1);
+    if(oldRatedRestaurant != null){
+      // get the old rating
+      oldRating = oldRatedRestaurant['restaurantRating'];
+      newRating = "${ratedRestaurantsLength == 1 ? "" : (step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).toString()}$RATING_DELIMITER $oldRating";
+
+      // remove the old restaurant
+      globalRatedRestsRef.updateData(
+          {
+            FireBaseConst.ratedDocument : FieldValue.arrayRemove(
+                [
+                  {
+                    "restaurantId"      : oldRatedRestaurant['restaurantId'],
+                    "restaurantTitle"   : oldRatedRestaurant['restaurantTitle'],
+                    "restaurantVicinity": oldRatedRestaurant['restaurantVicinity'],
+                    "restaurantRating"  : oldRatedRestaurant['restaurantRating']
+                  }
+                ]
+            )
+          }
+      );
+      globalRatedRestsRef.updateData(
+          {
+            FireBaseConst.ratedDocument : FieldValue.arrayUnion(
+                [
+                  {
+                    "restaurantId"       : restaurant.id,
+                    "restaurantTitle"    : restaurant.title,
+                    "restaurantVicinity" : restaurant.vicinity,
+                    "restaurantRating"   : newRating
+                  }
+                ]
+            )
+          }
+      );
+    }else {
+      newRating = "${(step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).toString()}";
+      globalRatedRestsRef.updateData(
+          {
+            FireBaseConst.ratedDocument : FieldValue.arrayUnion(
+                [
+                  {
+                    "restaurantId"       : restaurant.id,
+                    "restaurantTitle"    : restaurant.title,
+                    "restaurantVicinity" : restaurant.vicinity,
+                    "restaurantRating"   : ratedRestaurantsLength == 1 ? "" : newRating
+                  }
+                ]
+            )
+          }
+      );
+    }
+    ///
+    var onlyOneRestaurant = ratedRestaurantsLength == 1;
+    var yourRate = onlyOneRestaurant ? 0 : (step * (ratedRestaurantsLength - ratedRestaurantIndex - 1)).round();
+    yourRate = yourRate == 0 ? 1 : yourRate;
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context){
+          return AlertDialog(
+            title: Text("Thanks${onlyOneRestaurant ? ", please pick another place to rate":""}"),
+            content: onlyOneRestaurant? Column(mainAxisSize: MainAxisSize.min):Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text("YOUR RATING: $yourRate"),
+                Text("BEFORE: ${calcRate(oldRating)}"),
+                Text("AFTER: ${calcRate(newRating)}"),
+
+              ],
+            ),
+            actions: <Widget>[
+              // usually buttons at the bottom of the dialog
+              new FlatButton(
+                child: new Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        }
+    );
+    ///
   }
 
 

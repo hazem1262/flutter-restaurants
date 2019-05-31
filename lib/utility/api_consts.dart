@@ -19,7 +19,8 @@ class ApiHeaders {
 }
 
 class FireBaseConst {
-  static String ratedCollection = "Rated";
-  static String ratedDocument   = "ratedRestaurants";
-  static String userCollection  = "users";
+  static String ratedCollection   = "Rated";
+  static String ratedDocument     = "ratedRestaurants";
+  static String userCollection    = "users";
+  static String ratedRestaurantId = "rated restaurant id";
 }
