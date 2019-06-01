@@ -23,4 +23,5 @@ class FireBaseConst {
   static String ratedDocument     = "ratedRestaurants";
   static String userCollection    = "users";
   static String ratedRestaurantId = "rated restaurant id";
+  static String globalRatedRef    = "-Lfj2FXk-bqOH8qgYDET";
 }

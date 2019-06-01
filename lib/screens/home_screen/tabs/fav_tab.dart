@@ -31,12 +31,19 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
     ratedRestaurants = new BehaviorSubject();
   }
   _initFavRestaurants() async{
+    // get global rating
+    var globalRatedSnapshot = await Firestore.instance.collection(FireBaseConst.ratedCollection).document(FireBaseConst.globalRatedRef).get();
+    var globalRatedRests = globalRatedSnapshot.data[FireBaseConst.ratedDocument] ?? [];
+
     Firestore.instance.collection(FireBaseConst.userCollection).where("id", isEqualTo: _bloc.userId).snapshots().listen((restRef){
       final userRef = restRef.documents[0].documentID;
       Firestore.instance.collection(FireBaseConst.userCollection).document("$userRef").get().asStream().listen((ratedRestaurantsSnapshot){
         var previousRatedRest = ratedRestaurantsSnapshot.data[FireBaseConst.ratedDocument] ?? [];
         var rests = List<Item>();
         (previousRatedRest as List).forEach((element){
+          var globalRating = (globalRatedRests as List).firstWhere((globalRatedRest){
+            return globalRatedRest['restaurantId'] == element['restaurantId'];
+          })['restaurantRating'];
           String rating = element['restaurantRating'];
           var ratingArray = rating.split(RateBloc.RATING_DELIMITER);
 
@@ -47,7 +54,7 @@ class _FavTabState extends State<FavTab> with AutomaticKeepAliveClientMixin {
                   vicinity       : element['restaurantVicinity'],
                   firebaseRating : element['restaurantRating'],
                   totalRating    : calcRating(rating),
-                  averageRating  : (ratingArray.length < 3)? "${calcMinPossibleRating(element['restaurantRating'])} - ${calcMaxPossibleRating(element['restaurantRating'])}" : calcRating(rating)
+                  averageRating  : (globalRating.split(RateBloc.RATING_DELIMITER).length < 3)? "${calcMinPossibleRating(globalRating)} - ${calcMaxPossibleRating(globalRating)}" : calcRating(globalRating)
               )
           );
         });
